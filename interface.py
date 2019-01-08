@@ -1,6 +1,8 @@
 from fabric import Connection, Config
 import types
 import re
+from termcolor import colored
+import colorama
 import argparse
 import invoke
 import sys
@@ -25,11 +27,12 @@ def imports():
 def wrapper(fn, ip, password, timeout=None):
     config = Config(overrides={'sudo': {'password': password}})
     connect = Connection(ip, connect_kwargs={"password": password}, config=config, connect_timeout=timeout)
+    colorama.init()
     try:
         fn(connect)
-        print(f"{ip} executed successfully")
+        print(colored(f"{ip} executed successfully", "green"))
     except invoke.exceptions.UnexpectedExit as e:
-        print(f"Command Failed On {ip}")
+        print(colored(f"Command Failed On {ip}", "red"))
         print(e)
 
 
@@ -75,7 +78,6 @@ if __name__ == '__main__':
                 p = multiprocessing.Process(target=wrapper, args=(getattr(module, args.function), ip,
                                                                   args.password, args.timeout))
                 p.start()
-        print("done")
     else:
         print("Wrong Module or Function")
         helper()
