@@ -57,10 +57,12 @@ class MyParser(argparse.ArgumentParser):
 
 if __name__ == '__main__':
     parser = MyParser(description=f"Specify the function, module, and the file containing IP addresses.\n{helper()}\n"
-    f"example usage: python prebake secure_level --file output.txt\n\n"
+    f"example usage: python prebake secure_level --password Change.me! --timeout 60 --file output.txt\n\n"
     "Hint: Use IPgenerator to generate ip addresses", formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("module", help="Module from which the function should be imported")
     parser.add_argument("function", help="Function name that you would like to use")
+    parser.add_argument("--password", help="Password to connect to a remote host", default="changeme")
+    parser.add_argument("--timeout", help="Timeout for the connection", default=None, type=int)
     parser.add_argument("--file", help="File containing comma separated values of ip addresses", default="output.txt")
     args = parser.parse_args()
     available_functions = imports()
@@ -69,8 +71,11 @@ if __name__ == '__main__':
     if args.function in available_functions[module]:
         with open(args.file, "r") as file:
             ip_list = file.read().split(',')
-
-
+            for ip in ip_list:
+                p = multiprocessing.Process(target=wrapper, args=(getattr(module, args.function), ip,
+                                                                  args.password, args.timeout))
+                p.start()
+        print("done")
     else:
         print("Wrong Module or Function")
         helper()
