@@ -1,6 +1,5 @@
 from fabric import Connection, Config
 import invoke
-import time
 import multiprocessing
 
 hosts = ["aibek@192.168.1.62", "aibek@192.168.1.73"]
