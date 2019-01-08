@@ -21,12 +21,12 @@ def output(hosts_list, file_name):
         file.write(",".join(hosts_list))
 
 
-parser = argparse.ArgumentParser(description="""
-Please follow the format:
-user@(net).(X: number of teams).(dmz/lan).(ip of the machine)   
-example: IPgenerator.py --user sysadmin --net 10 --number_of_teams 15 --first_team_start_address 1
---lan 1 --dmz 2 --lan_list 5,6,7 --dmz_list 10,11,12 --wan_ip 178.X.3.56 --output IPs.txt
- """)
+parser = argparse.ArgumentParser(description="Please follow the format:\n"
+                                             "user@(net).(X: number of teams).(dmz/lan).(ip of the machine) \n"
+                                             "example: IPgenerator.py --user sysadmin --net 10 --number_"
+                                             "of_teams 15 --first_team_start_address 1 --lan 1 --dmz 2 --lan_list 5,6,"
+                                             "7 --dmz_list 10,11,12 --wan_ip 178.X.3.56 --output IPs.txt",
+                                             formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument("--user", help="the user to which you will ssh", default="sysadmin")
 parser.add_argument("--net", help="the first octet for any machine in your network" , default="10")
 parser.add_argument("--number_of_teams", help="The total number of teams in the competition", default="15", type=int)
@@ -39,8 +39,6 @@ parser.add_argument("--wan_ip", help="WAN Address with X as one of the Octets(X 
 parser.add_argument("--gateway_user", help="User of the gateway", default="root")
 parser.add_argument("--output", help="Output file to which IPs should be saved", default="output.txt")
 args = parser.parse_args()
-
-print(vars(args))
 output(host(**vars(args)), args.output)
 
 
