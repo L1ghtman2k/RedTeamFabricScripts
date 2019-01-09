@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     if args.function in available_functions[module]:
         with open(args.file, "r") as file:
-            ip_list = file.read().split(',')
+            ip_list = file.read().split('\n')
             for ip in ip_list:
                 p = multiprocessing.Process(target=wrapper, args=(getattr(module, args.function), ip,
                                                                   args.password, args.timeout))

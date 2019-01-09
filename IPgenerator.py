@@ -18,7 +18,7 @@ def host(user, net, number_of_teams, first_team_start_address, lan, dmz, lan_lis
 
 def output(hosts_list, file_name):
     with open(file_name, "w") as file:
-        file.write(",".join(hosts_list))
+        file.write("\n".join(hosts_list))
 
 
 parser = argparse.ArgumentParser(description="Please follow the format:\n"
