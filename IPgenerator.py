@@ -21,12 +21,16 @@ def output(hosts_list, file_name):
         file.write("\n".join(hosts_list))
 
 
+class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+    pass
+
+
 parser = argparse.ArgumentParser(description="Please follow the format:\n"
                                              "user@(net).(X: number of teams).(dmz/lan).(ip of the machine) \n"
                                              "example: IPgenerator.py --user sysadmin --net 10 --number_"
                                              "of_teams 15 --first_team_start_address 1 --lan 1 --dmz 2 --lan_list 5,6,"
                                              "7 --dmz_list 10,11,12 --wan_ip 178.X.3.56 --output IPs.txt",
-                                             formatter_class=argparse.RawTextHelpFormatter)
+                                             formatter_class=Formatter)
 parser.add_argument("--user", help="the user to which you will ssh", default="sysadmin")
 parser.add_argument("--net", help="the first octet for any machine in your network" , default="10")
 parser.add_argument("--number_of_teams", help="The total number of teams in the competition", default="15", type=int)

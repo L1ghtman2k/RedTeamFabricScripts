@@ -58,10 +58,14 @@ class MyParser(argparse.ArgumentParser):
         sys.exit(2)
 
 
+class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+    pass
+
+
 if __name__ == '__main__':
     parser = MyParser(description=f"Specify the function, module, and the file containing IP addresses.\n{helper()}\n"
     f"example usage: python prebake secure_level --password Change.me! --timeout 60 --file output.txt\n\n"
-    "Hint: Use IPgenerator to generate ip addresses", formatter_class=argparse.RawTextHelpFormatter)
+    "Hint: Use IPgenerator to generate ip addresses", formatter_class=Formatter)
     parser.add_argument("module", help="Module from which the function should be imported")
     parser.add_argument("function", help="Function name that you would like to use")
     parser.add_argument("--password", help="Password to connect to a remote host", default="changeme")
