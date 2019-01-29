@@ -1,4 +1,4 @@
-def parrot_party(connect): #download_gnome
+def parrot_party(connect): #download_gnome AND USE THE ACTUAL USER
     connect.sudo("DISPLAY=:0 gnome-terminal -e \"/bin/bash -l -c \'curl parrot.live; cat -\'\"")
 
 
