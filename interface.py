@@ -34,6 +34,11 @@ def wrapper(fn, ip, password, timeout=None):
     except invoke.exceptions.UnexpectedExit as e:
         print(colored(f"Command Failed On {ip}", "red"))
         print(e)
+    except:
+        print(colored(f"Command Failed On {ip} for unknown reason", "red"))
+        e = sys.exc_info()[0]
+        print(e)
+
 
 
 def name_to_module(name, namespace):

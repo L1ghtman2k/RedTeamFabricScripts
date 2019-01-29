@@ -1,7 +1,7 @@
 import argparse
 
 
-def host(user, skip_user, net, number_of_teams, first_team_start_address, lan, dmz, lan_list, dmz_list, wan_ip, gateway_user, *args, **kwargs):
+def host(user, skip_user, net, number_of_teams, first_team_start_address, lan, dmz, lan_list, dmz_list, wan_ip, wan_difference, first_wan_start_address, gateway_user, *args, **kwargs):
     hosts_list = []
     la = [lan, lan_list]
     dm = [dmz, dmz_list]
@@ -14,7 +14,7 @@ def host(user, skip_user, net, number_of_teams, first_team_start_address, lan, d
                 for fourth_octet in zone[1].split(','):
                     hosts_list.append(single+f"{net}.{team_number}.{zone[0]}."+fourth_octet)
         if wan_ip:
-            hosts_list.append(gateway_user + "@" + wan_ip.replace("X", str(team_number)))
+            hosts_list.append(gateway_user + "@" + wan_ip.replace("X", str(first_wan_start_address + (team_number-1) * wan_difference)))
     return hosts_list
 
 
@@ -42,9 +42,12 @@ parser.add_argument("--lan", help="the third octet for any machine in lan", defa
 parser.add_argument("--dmz", help="the third octet for any machine in dmz", default="2")
 parser.add_argument("--lan_list", help="List Of Fourth Octets in lan(comma separated)", default=None)
 parser.add_argument("--dmz_list", help="List Of Fourth Octets in dmz(comma separated)", default=None)
-parser.add_argument("--wan_ip", help="WAN Address with X as one of the Octets(X stand for team number)", default=None)
+parser.add_argument("--wan_ip", help="WAN Address with X as one of the Octets(X stand for team number)", default="192.168.253.X")
 parser.add_argument("--gateway_user", help="User of the gateway", default="root")
+parser.add_argument("--wan_difference", help="The Difference between X-s", default=4)
+parser.add_argument("--first_wan_start_address", help="The number of first X", default=2)
 parser.add_argument("--output", help="Output file to which IPs should be saved", default="output.txt")
+
 
 args = parser.parse_args()
 output(host(**vars(args)), args.output)
