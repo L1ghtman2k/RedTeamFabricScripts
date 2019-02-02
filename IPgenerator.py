@@ -42,7 +42,8 @@ parser.add_argument("--lan", help="the third octet for any machine in lan", defa
 parser.add_argument("--dmz", help="the third octet for any machine in dmz", default="2")
 parser.add_argument("--lan_list", help="List Of Fourth Octets in lan(comma separated)", default=None)
 parser.add_argument("--dmz_list", help="List Of Fourth Octets in dmz(comma separated)", default=None)
-parser.add_argument("--wan_ip", help="WAN Address with X as one of the Octets(X stand for team number)", default="192.168.253.X")
+
+parser.add_argument("--wan_ip", help="WAN Address with X as one of the Octets(X stand for team number)", default=None)
 parser.add_argument("--gateway_user", help="User of the gateway", default="root")
 parser.add_argument("--wan_difference", help="The Difference between X-s", default=4)
 parser.add_argument("--first_wan_start_address", help="The number of first X", default=2)
