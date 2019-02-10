@@ -10,5 +10,9 @@ def countdown_shell(connect):
                  "ICAgICAgICAgICAgICAgICAgICAgICAK\" | base64 -d | sudo tee -a /etc/bash.bashrc'")
 
 
-def change_background_(connect):
-    pass
+def change_background_ubuntu(connect):
+    # connect.put('UploadFiles/ozvsk.jpg')
+    # connect.run("wget https://i.imgur.com/cYaz163.png")
+    connect.run("sh -c 'echo \"gsettings set org.gnome.desktop.background picture-uri file:///home/sysadmin/cYaz163.png\" | at -m now + 1 minute'")
+
+    # connect.run("sh -c 'export DISPLAY=:0 && gsettings set org.gnome.desktop.background picture-uri \"file:///home/sysadmin/ozvsk.jpg\" ' ")
