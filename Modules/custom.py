@@ -11,3 +11,4 @@ def install_terminator(connect):
 
 def fail_function(connect):
     connect.run(r"sh -c 'cd / && mkdir fail_file'")
+
