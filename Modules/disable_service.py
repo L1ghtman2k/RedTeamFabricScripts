@@ -1,4 +1,5 @@
 def off_apache(connect):
+    connect.sudo("systemctl start apache2.service") #cuz linux is dumb
     connect.sudo("systemctl stop apache2.service")
 
 
