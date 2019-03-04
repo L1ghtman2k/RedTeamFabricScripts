@@ -39,3 +39,4 @@ def backdoor_pupy(connect):
     connect.sudo('/bin/./pupy')
 
 # Up to implementation: merlin
+# https://github.com/shad0wghost/ssh-authlog-backdoor
