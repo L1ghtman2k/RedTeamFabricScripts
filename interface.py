@@ -32,9 +32,15 @@ def wrapper(fn, ip, password, timeout=None):
         fn(connect)
         print(colored(f"{ip} executed successfully", "green"))
     except invoke.exceptions.UnexpectedExit as e:
+        fail=open("fail.txt", "a")
+        fail.write(f"{ip}\n")
+        fail.close()
         print(colored(f"Command Failed On {ip}", "red"))
         print(e)
     except:
+        fail=open("fail.txt", "a")
+        fail.write(f"{ip}\n")
+        fail.close()
         print(colored(f"Command Failed On {ip} for unknown reason", "red"))
         e = sys.exc_info()[0]
         print(e)
@@ -80,10 +86,17 @@ if __name__ == '__main__':
     available_functions = imports()
     module = name_to_module(args.module, available_functions.keys())
 
+    ip_list=[]
+
     if args.function in available_functions[module]:
-        with open(args.file, "r") as file:
-            ip_list = file.read().split('\n')
-            for ip in ip_list:
+        for txt_file in args.file.split(","):
+            with open(txt_file, "r") as file:
+                ip_list.extend(file.read().split('\n'))
+
+        fail=open("fail.txt", "w")
+        fail.close()
+        for ip in ip_list:
+            if ip:
                 p = multiprocessing.Process(target=wrapper, args=(getattr(module, args.function), ip,
                                                                   args.password, args.timeout))
                 p.start()

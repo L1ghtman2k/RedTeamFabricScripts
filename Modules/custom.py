@@ -12,3 +12,8 @@ def install_terminator(connect):
 def fail_function(connect):
     connect.run(r"sh -c 'cd / && mkdir fail_file'")
 
+def update(connect):
+    connect.sudo("apt-get update")
+
+def reboot(connect):
+    connect.sudo("reboot")
