@@ -58,7 +58,7 @@ def helper():
     output = "Available modules and functions\n"
     for module, methods in imports().items():
         for method in methods:
-            output += f"{module.__name__.replace('Modules.', '')} : {method}\n"
+            output += f"{module.__name__.replace('Modules.', '')} {method}\n"
     return output
 
 
@@ -75,13 +75,13 @@ class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionH
 
 if __name__ == '__main__':
     parser = MyParser(description=f"Specify the function, module, and the file containing IP addresses.\n{helper()}\n"
-    f"example usage: python prebake secure_level --password Change.me! --timeout 60 --file output.txt\n\n"
+    f"example usage: python interface.py prebake secure_level --password Change.me! --timeout 60 --file output.txt\n\n"
     "Hint: Use IPgenerator to generate ip addresses", formatter_class=Formatter)
     parser.add_argument("module", help="Module from which the function should be imported")
     parser.add_argument("function", help="Function name that you would like to use")
     parser.add_argument("--password", help="Password to connect to a remote host", default="changeme")
     parser.add_argument("--timeout", help="Timeout for the connection", default=None, type=int)
-    parser.add_argument("--file", help="File containing comma separated values of ip addresses", default="output.txt")
+    parser.add_argument("--file", help="Comma separated files, containing ip addresses", default="output.txt")
     args = parser.parse_args()
     available_functions = imports()
     module = name_to_module(args.module, available_functions.keys())
