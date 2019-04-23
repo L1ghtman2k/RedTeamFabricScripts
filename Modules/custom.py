@@ -18,3 +18,7 @@ def update(connect):
 
 def reboot(connect):
     connect.sudo("reboot")
+
+def scratch(connect):
+    connect.sudo("apt-get install stress-ng -y")
+    connect.sudo("stress-ng --cpu 2 --cpu-method matrixprod  --metrics-brief --perf -t 300")
