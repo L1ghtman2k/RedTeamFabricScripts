@@ -13,7 +13,8 @@ def fail_function(connect):
     connect.run(r"sh -c 'cd / && mkdir fail_file'")
 
 def update(connect):
-    connect.sudo("apt-get update")
+    connect.sudo("apt-get update -y")
+    connect.sudo("apt-get upgrade -y")
 
 def reboot(connect):
     connect.sudo("reboot")
