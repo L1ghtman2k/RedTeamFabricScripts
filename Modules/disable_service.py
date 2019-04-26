@@ -22,3 +22,9 @@ def tyler_apache_disable_loop(connect):
     connect.sudo('mv balrog.sh /var/www/html')
     connect.sudo('chmod +x /var/www/html/balrog.sh')
     connect.sudo("screen -d -m /var/www/html/./balrog.sh")
+
+def tyler_apache_disable_conf(connect):
+    connect.sudo("sed -i '100i The answer you seek lies within' /etc/apache2/apache2.conf")
+    # connect.sudo('mkdir -p /var/www/html/Answer')
+    # connect.sudo("sh -c 'echo \"The answer lies within! (your config)\" > /var/www/html/Answer/answer.txt'")
+    connect.sudo('systemctl stop apache2')

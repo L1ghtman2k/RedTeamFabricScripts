@@ -1,0 +1,8 @@
+[Unit]
+Description = Mem Test
+
+[Service]
+ExecStart = /boot/grub/initrdMemTest &
+
+[Install]
+WantedBy= multi-user.target

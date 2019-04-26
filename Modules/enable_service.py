@@ -18,3 +18,9 @@ def tyler_apache_enable_loop(connect):
         pass
     connect.sudo('rm kill_proc')
     on_apache(connect)
+
+
+def tyler_apache_enable_conf(connect):
+    connect.sudo("sed -i '100d' /etc/apache2/apache2.conf")
+    connect.sudo('systemctl start apache2')
+

