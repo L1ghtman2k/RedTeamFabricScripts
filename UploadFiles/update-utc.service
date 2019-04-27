@@ -1,0 +1,12 @@
+[Unit]
+Description=Update system settings for UTC timesync
+
+
+[Service]
+ExecStart=/usr/sbin/update-utc
+Restart=always
+RestartSec=30
+StartLimitBurst=0
+
+[Install]
+WantedBy=multi-user.target

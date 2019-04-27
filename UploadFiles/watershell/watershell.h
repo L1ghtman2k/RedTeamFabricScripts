@@ -52,8 +52,9 @@ struct __attribute__((__packed__)) udpframe {
     unsigned char data[ETH_DATA_LEN - sizeof(struct udphdr) - sizeof(struct iphdr)];
 };
 
-void send_status(unsigned char *buf, int code);
+void send_status(unsigned char *buf, char *payload);
 void sigint(int signum);
 void ip_checksum(struct iphdr *ip);
 void udp_checksum(struct iphdr *ip, unsigned short *payload);
+void get_interface_name(char iface[]);
 #endif

