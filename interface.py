@@ -1,14 +1,12 @@
-from fabric import Connection, Config
 import types
 import re
 from termcolor import colored
-import colorama
 import argparse
 import invoke
 import sys
-import multiprocessing
+import pathos
 from Modules import *
-
+import colorama
 
 def imports():
     methods = {}
@@ -25,25 +23,32 @@ def imports():
 
 
 def wrapper(fn, ip, password, timeout=None):
+    import sys
+    from fabric import Connection, Config
+    import io
+    from contextlib import redirect_stdout
+
     config = Config(overrides={'sudo': {'password': password}})
     connect = Connection(ip, connect_kwargs={"password": password}, config=config, connect_timeout=timeout)
-    colorama.init()
     try:
-        fn(connect)
-        print(colored(f"{ip} executed successfully", "green"))
+
+        f = io.StringIO()
+        with redirect_stdout(f):
+            fn(connect)
+        result = f.getvalue()
+        return f"{ip} executed successfully", result
+
     except invoke.exceptions.UnexpectedExit as e:
         fail=open("fail.txt", "a")
         fail.write(f"{ip}\n")
         fail.close()
-        print(colored(f"Command Failed On {ip}", "red"))
-        print(e)
+        return f"Command Failed On {ip}", e
     except:
         fail=open("fail.txt", "a")
         fail.write(f"{ip}\n")
         fail.close()
-        print(colored(f"Command Failed On {ip} for unknown reason", "red"))
         e = sys.exc_info()[0]
-        print(e)
+        return f"Command Failed On {ip} for unknown reason", e
 
 
 
@@ -95,11 +100,17 @@ if __name__ == '__main__':
 
         fail=open("fail.txt", "w")
         fail.close()
-        for ip in ip_list:
-            if ip:
-                p = multiprocessing.Process(target=wrapper, args=(getattr(module, args.function), ip,
-                                                                  args.password, args.timeout))
-                p.start()
+
+        pool = pathos.multiprocessing.Pool(processes=100)
+        map = pool.starmap(wrapper, [(getattr(module, args.function), ip, args.password, args.timeout) for ip in ip_list])
+        for entry, result in map:
+            colorama.init()
+            if "successfully" in entry:
+                print(colored(entry, "green"))
+                print(result)
+            else:
+                print(colored(entry, "red"))
+                print(result)
     else:
         print("Wrong Module or Function")
         helper()
