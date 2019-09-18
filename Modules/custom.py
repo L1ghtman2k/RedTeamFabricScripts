@@ -4,7 +4,9 @@ def clear_history(connect):
     connect.sudo("history -c")
 
 def test_connection(connect):
+    connect.sudo("mkdir /test777")
     connect.sudo("whoami")
+    connect.sudo("mkdir /test666")
 
 def install_terminator(connect):
     connect.sudo("apt-get install terminator -y")

