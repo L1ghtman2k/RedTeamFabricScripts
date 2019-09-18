@@ -1,4 +1,4 @@
-#!C:\Users\AZhylkaidarov\PycharmProjects\RedTeamFabricScripts\venv\Scripts\python.exe
+#!C:\Users\aibek\PycharmProjects\RedTeamFabricScripts\venv\Scripts\python.exe
 # EASY-INSTALL-ENTRY-SCRIPT: 'setuptools==40.8.0','console_scripts','easy_install'
 __requires__ = 'setuptools==40.8.0'
 import re
